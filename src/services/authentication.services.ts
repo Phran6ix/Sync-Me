@@ -1,6 +1,5 @@
 import * as crypto from "crypto";
 import UserRepo from "../modules/implementation/user.implementation";
-import BaseController from "../controller/BaseController";
 import { User } from "../database/models/userModel";
 import { OTP } from "../database/models/otpModel";
 
@@ -8,6 +7,9 @@ import Email from "../utils/nodemailer/email";
 import { comparepassword } from "../utils/bcrypt/hashpassword";
 import { IUser } from "../interfaces/user.interface";
 import X from "../exception/exceptions";
+import IOtp from "../interfaces/otp.interface";
+import { Document } from "mongoose";
+import { date } from "yup";
 
 class AuthenticationServices {
   public User = User;
@@ -16,6 +18,7 @@ class AuthenticationServices {
   constructor() {
     this.user_repo = new UserRepo();
   }
+
   public async Register(payload: Partial<IUser>): Promise<Boolean> {
     try {
       const user = await this.user_repo.createUser(payload);
@@ -53,6 +56,66 @@ class AuthenticationServices {
     }
   }
 
+  public async verifyAccount(otp: any): Promise<Boolean> {
+    try {
+      const hashed = crypto.createHash("sha256").update(`${otp}`).digest("hex");
+
+      const otpDoc: IOtp & Document = await OTP.findOne({ otp: hashed });
+      if (!otpDoc) {
+        throw new X("Account with this OTP does not exist", 404);
+      }
+
+      if (+new Date() - +otpDoc.createdAt > 600000) {
+        throw new X("This token has expired", 400);
+      }
+
+      otpDoc.verified = true;
+      await otpDoc.save();
+
+      await User.findByIdAndUpdate(otpDoc.user, {
+        isVerified: true,
+      });
+
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async resendOTP(email: string): Promise<void> {
+    try {
+      const code = Math.round(Math.random() * 1000000);
+
+      const hashedotp = crypto
+        .createHash("sha256")
+        .update(`${code}`)
+        .digest("hex");
+
+      const user = await User.findOne({ email });
+      if (!user) {
+        throw new X("User not found", 404);
+      }
+
+      const otp = new OTP({
+        otp: hashedotp,
+        user: user._id,
+        purpose: "sign-up",
+      });
+
+      await otp.save();
+
+      await new Email(
+        `Your OTP code is ${code}`,
+        "Resend One Time Token",
+        user.email
+      ).sendEmail();
+
+      return;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async loginAUser(payload: {
     email?: string;
     username?: string;
@@ -70,6 +133,8 @@ class AuthenticationServices {
 
       if (!(await comparepassword(password, user.password)))
         throw new X("Invalid password", 400);
+
+      if (!user.isVerified) throw new X("User account is not verified", 401);
 
       return user as IUser;
     } catch (error) {

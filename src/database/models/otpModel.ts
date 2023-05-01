@@ -15,6 +15,10 @@ const OTPSchema = new Schema({
     type: String,
     enum: ["sign-up", "reset-password"],
   },
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
 });
 
 OTPSchema.index({ otp: 1 });

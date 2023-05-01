@@ -4,8 +4,10 @@ import { signupSchema } from "../validator/validator";
 import AuthenticationServices from "../services/authentication.services";
 import { hashpassword } from "../utils/bcrypt/hashpassword";
 import { NextFunction } from "express-serve-static-core";
-import * as crypto from "crypto";
-import Email from "../utils/nodemailer/email";
+
+interface RequestQuery {
+  otp: number;
+}
 
 export default class AuthenticationController extends BaseController {
   public path = "/auth";
@@ -21,13 +23,21 @@ export default class AuthenticationController extends BaseController {
   // IMPLEMENTING FULL OOP BY HAVING THE CONTROLLER AND ROUTES IN THE SAME CLASS
   public initiateRoute() {
     this.router.post(`${this.path}/sign-up`, (...fromexpress) =>
-      this.signupuser(...fromexpress)
+      this.HTTPsignupuser(...fromexpress)
     );
-    this.router.post(`${this.path}/login`, this.loginAUser);
+    this.router.post(`${this.path}/login`, (...args) =>
+      this.HTTPloginAUser(...args)
+    );
+    this.router.patch(`${this.path}/verify-account`, (...fromexpress) => {
+      this.HTTPVerifyAccount(...fromexpress);
+    });
+    this.router.post(`${this.path}/resend-otp`, (...args) => {
+      this.HTTPResentOTP(...args);
+    });
   }
 
   // SIGNUP A USER
-  async signupuser(
+  private async HTTPsignupuser(
     req: Request,
     res: Response,
     next: NextFunction
@@ -48,7 +58,37 @@ export default class AuthenticationController extends BaseController {
     }
   }
 
-  private async loginAUser(
+  private async HTTPVerifyAccount(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      const otp = req.query.otp;
+
+      await this.authService.verifyAccount(otp);
+
+      return this.sendResponse(res, "success", 200, {
+        message: "Account has verified",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPResentOTP(req: Request, res: Response, next: NextFunction) {
+    try {
+      const email = req.body.email;
+      await this.authService.resendOTP(email);
+      return this.sendResponse(res, "success", 200, {
+        message: "OTP has been sent to your email",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPloginAUser(
     req: Request,
     res: Response,
     next: NextFunction

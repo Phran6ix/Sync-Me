@@ -3,4 +3,5 @@ export default interface IOtp {
   otp: string;
   verified: true;
   purpose: "sign-up" | "reset-password";
+  createdAt: Date;
 }
