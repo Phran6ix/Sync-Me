@@ -1,7 +1,11 @@
 import { User } from "../../database/models/userModel";
 import { IUserRepo } from "../repository/user.repository";
 import { IUser } from "../../interfaces/user.interface";
-import X from "../../exception/exceptions";
+
+import HTTPException from "../../exception/exceptions";
+import { Document, Model } from "mongoose";
+
+export type TUser = IUser & Document;
 
 export default class UserRepo implements IUserRepo<IUser> {
   private userModel;
@@ -9,21 +13,23 @@ export default class UserRepo implements IUserRepo<IUser> {
     this.userModel = User;
   }
 
-  public async createUser(User: Partial<IUser>): Promise<IUser> {
-    const user: IUser = await this.userModel.create(User);
+  public async createUser(User: Partial<IUser>): Promise<TUser> {
+    const user: TUser = await this.userModel.create(User);
     if (!user) {
       console.log(`user:: ${user}`);
-      throw new X("User not created", 400);
+      throw new HTTPException("User not created", 400);
     }
 
     return user;
   }
 
-  public async findUserByEmail(email: string): Promise<IUser> {
+  public async findUserByEmail(email: string): Promise<TUser> {
     if (!email) {
       return null;
     }
-    const user: IUser = await this.userModel.findOne({ email });
+    const user: TUser = await this.userModel
+      .findOne({ email })
+      .select("+password");
     if (!user) {
       return null;
     }
@@ -31,7 +37,7 @@ export default class UserRepo implements IUserRepo<IUser> {
   }
 
   public async findUserById(userId: string): Promise<IUser> {
-    const user: IUser = await this.userModel.findById(userId);
+    const user: TUser = await this.userModel.findById(userId);
 
     if (!user) {
       return null;
@@ -39,7 +45,9 @@ export default class UserRepo implements IUserRepo<IUser> {
     return user;
   }
   public async findUserByUsername(username: string): Promise<IUser> {
-    const user: IUser = await this.userModel.findOne({ username });
+    const user: IUser = await this.userModel
+      .findOne({ username })
+      .select("+password");
     if (!user) {
       return null;
     }

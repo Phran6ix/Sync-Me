@@ -1,4 +1,4 @@
-class X extends Error {
+class HTTPException extends Error {
   statusCode: number;
   isOperational: boolean;
   success: string;
@@ -11,4 +11,4 @@ class X extends Error {
   }
 }
 
-export default X;
+export default HTTPException;

@@ -6,10 +6,10 @@ import { OTP } from "../database/models/otpModel";
 import Email from "../utils/nodemailer/email";
 import { comparepassword } from "../utils/bcrypt/hashpassword";
 import { IUser } from "../interfaces/user.interface";
-import X from "../exception/exceptions";
+
 import IOtp from "../interfaces/otp.interface";
 import { Document } from "mongoose";
-import { date } from "yup";
+import HTTPException from "../exception/exceptions";
 
 class AuthenticationServices {
   public User = User;
@@ -25,7 +25,7 @@ class AuthenticationServices {
 
       if (!user) {
         console.error(user);
-        throw new X("An Error occured", 400);
+        throw new HTTPException("An Error occured", 400);
       }
 
       const code = Math.round(Math.random() * 1000000);
@@ -62,11 +62,11 @@ class AuthenticationServices {
 
       const otpDoc: IOtp & Document = await OTP.findOne({ otp: hashed });
       if (!otpDoc) {
-        throw new X("Account with this OTP does not exist", 404);
+        throw new HTTPException("Account with this OTP does not exist", 404);
       }
 
       if (+new Date() - +otpDoc.createdAt > 600000) {
-        throw new X("This token has expired", 400);
+        throw new HTTPException("This token has expired", 400);
       }
 
       otpDoc.verified = true;
@@ -93,7 +93,7 @@ class AuthenticationServices {
 
       const user = await User.findOne({ email });
       if (!user) {
-        throw new X("User not found", 404);
+        throw new HTTPException("User not found", 404);
       }
 
       const otp = new OTP({
@@ -123,22 +123,76 @@ class AuthenticationServices {
   }): Promise<IUser> {
     try {
       const { email, username, password } = payload;
-      if (!email || !username) throw new X("Field cannot be empty", 400);
+
       let user;
       if (email) user = await this.user_repo.findUserByEmail(email);
       if (username) user = await this.user_repo.findUserByUsername(username);
 
       if (!user)
-        throw new X("User with this credential is not found, try again", 404);
+        throw new HTTPException(
+          "User with this credential is not found, try again",
+          404
+        );
 
       if (!(await comparepassword(password, user.password)))
-        throw new X("Invalid password", 400);
+        throw new HTTPException("Invalid password", 400);
 
-      if (!user.isVerified) throw new X("User account is not verified", 401);
+      if (!user.isVerified)
+        throw new HTTPException("User account is not verified", 401);
 
-      return user as IUser;
+      return user;
     } catch (error) {
-      return error;
+      throw error;
+    }
+  }
+
+  public async forgotPassword(email: string): Promise<void> {
+    try {
+      const userexist = await this.user_repo.findUserByEmail(email);
+
+      if (!userexist) {
+        throw new HTTPException("User with this email does not exist", 404);
+      }
+
+      const resetToken = Math.round(Math.random() * 1000000);
+      const hashToken = crypto
+        .createHash("sha256")
+        .update(`${resetToken}`)
+        .digest("hex");
+
+      const otp = new OTP({
+        user: userexist._id,
+        otp: hashToken,
+        purpose: "reset-password",
+        email: userexist.email,
+      });
+      await otp.save();
+      userexist.isVerified = false;
+      await userexist.save();
+
+      await new Email(
+        `Your Reset Password Token is ${resetToken}`,
+        "Reset Password",
+        userexist.email
+      ).sendEmail();
+
+      return;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async resetPassword(email: string, password: string): Promise<void> {
+    try {
+      const user = await this.user_repo.findUserByEmail(email);
+      if (!user.isVerified) {
+        throw new HTTPException("Your account is verified.", 400);
+      }
+      user.password = password;
+      await user.save();
+      return;
+    } catch (error) {
+      throw error;
     }
   }
 }

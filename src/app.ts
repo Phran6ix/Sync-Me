@@ -7,6 +7,7 @@ import AuthenticationController from "./controller/authentication.controller";
 import { redisStore } from "./config/conect.redis";
 import handleGlobalError from "./handler/errorHandler";
 import { IUser } from "./interfaces/user.interface";
+import { TUser } from "./modules/implementation/user.implementation";
 
 declare global {
   namespace Express {
@@ -26,7 +27,7 @@ declare global {
 
 declare module "express-session" {
   interface SessionData {
-    user: IUser;
+    user: TUser;
   }
 }
 

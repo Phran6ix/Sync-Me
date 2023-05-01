@@ -10,7 +10,7 @@ const OTPSchema = new Schema({
     type: String,
     required: [true, "OTP is required"],
   },
-  verified: { type: Boolean, default: true },
+  verified: { type: Boolean, default: false },
   purpose: {
     type: String,
     enum: ["sign-up", "reset-password"],

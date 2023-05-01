@@ -18,4 +18,10 @@ const signupSchema = object({
     .trim(),
 });
 
-export { signupSchema };
+const loginSchema = object({
+  username: string().optional().trim(),
+  email: string().optional().email().lowercase().trim(),
+  password: string().required("Please input password").trim(),
+});
+
+export { signupSchema, loginSchema };

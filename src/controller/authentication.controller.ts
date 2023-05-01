@@ -1,13 +1,9 @@
 import { Request, Response, Router } from "express";
 import BaseController from "./BaseController";
-import { signupSchema } from "../validator/validator";
+import { signupSchema, loginSchema } from "../validator/validator";
 import AuthenticationServices from "../services/authentication.services";
 import { hashpassword } from "../utils/bcrypt/hashpassword";
 import { NextFunction } from "express-serve-static-core";
-
-interface RequestQuery {
-  otp: number;
-}
 
 export default class AuthenticationController extends BaseController {
   public path = "/auth";
@@ -34,6 +30,12 @@ export default class AuthenticationController extends BaseController {
     this.router.post(`${this.path}/resend-otp`, (...args) => {
       this.HTTPResentOTP(...args);
     });
+    this.router.get(`${this.path}/forgot-password`, (...args) =>
+      this.HTTPForgotPassword(...args)
+    );
+    this.router.patch(`${this.path}/reset-password`, (...args) =>
+      this.HTTPResetPassword(...args)
+    );
   }
 
   // SIGNUP A USER
@@ -53,7 +55,7 @@ export default class AuthenticationController extends BaseController {
       return this.sendResponse(res, "success", 201, {
         message: "User successfully registered",
       });
-    } catch (error: any) {
+    } catch (error) {
       next(error);
     }
   }
@@ -93,18 +95,57 @@ export default class AuthenticationController extends BaseController {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const { username, email, password } = req.body;
+    try {
+      const payload = await loginSchema.validate(req.body);
 
-    const user = await this.authService.loginAUser({
-      username,
-      email,
-      password,
-    });
+      const { email, password, username } = payload;
+      const user = await this.authService.loginAUser({
+        email,
+        username,
+        password,
+      });
 
-    req.session.user = user;
+      // req.session.user = user;
 
-    return this.sendResponse(res, "success", 200, {
-      user,
-    });
+      return this.sendResponse(res, "success", 200, {
+        message: "User signed in successful",
+        user,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  private async HTTPForgotPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      const { email } = req.body;
+
+      await this.authService.forgotPassword(email);
+      return this.sendResponse(res, "success", 200, {
+        message: "OTP has been sent to your email",
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPResetPassword(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      let { email, password } = req.body;
+      password = await hashpassword(password);
+      await this.authService.resetPassword(email, password);
+      return this.sendResponse(res, "success", 200, {
+        message: "Password reset successful",
+      });
+    } catch (error) {
+      next(error);
+    }
   }
 }
