@@ -1,0 +1,11 @@
+import { Types } from "mongoose";
+import { IUser } from "./user.interface";
+
+export interface IGroup {
+  _id: Types.ObjectId;
+  name: string;
+  description: string;
+  members: string[];
+  createdBy: string;
+  created_on: Date;
+}

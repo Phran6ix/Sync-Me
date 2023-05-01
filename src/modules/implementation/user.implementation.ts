@@ -1,0 +1,68 @@
+import { User } from "../../database/models/userModel";
+import { IUserRepo } from "../repository/user.repository";
+import { IUser } from "../../interfaces/user.interface";
+import X from "../../exception/exceptions";
+
+export default class UserRepo implements IUserRepo<IUser> {
+  private userModel;
+  constructor() {
+    this.userModel = User;
+  }
+
+  public async createUser(User: Partial<IUser>): Promise<IUser> {
+    const user: IUser = await this.userModel.create(User);
+    if (!user) {
+      console.log(`user:: ${user}`);
+      throw new X("User not created", 400);
+    }
+
+    return user;
+  }
+
+  public async findUserByEmail(email: string): Promise<IUser> {
+    if (!email) {
+      return null;
+    }
+    const user: IUser = await this.userModel.findOne({ email });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+
+  public async findUserById(userId: string): Promise<IUser> {
+    const user: IUser = await this.userModel.findById(userId);
+
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+  public async findUserByUsername(username: string): Promise<IUser> {
+    const user: IUser = await this.userModel.findOne({ username });
+    if (!user) {
+      return null;
+    }
+    return user;
+  }
+  public async userExists(username?: string, email?: string): Promise<Boolean> {
+    let user: IUser;
+    if (email) {
+      user = await this.findUserByEmail(email);
+    }
+    if (username) {
+      user = await this.findUserByUsername(username);
+    }
+    if (!user) return false;
+
+    return true;
+  }
+  public async updateUser(
+    userId: string,
+    User: Partial<IUser>
+  ): Promise<Boolean> {
+    const user = await this.userModel.findByIdAndUpdate(userId, { User });
+    if (!user) return false;
+    return true;
+  }
+}
