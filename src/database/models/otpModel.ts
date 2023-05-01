@@ -7,7 +7,7 @@ const OTPSchema = new Schema({
     ref: "User",
   },
   otp: {
-    type: Number,
+    type: String,
     required: [true, "OTP is required"],
   },
   verified: { type: Boolean, default: true },

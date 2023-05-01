@@ -25,28 +25,32 @@ export default class Email {
     this.message = message;
     this.subject = subject;
     this.user_email = user_email;
+    this.createConnection();
   }
 
   createConnection(): any {
-    this.transpoter = nodemailer.createTransport({
+    return (this.transpoter = nodemailer.createTransport({
       host: this.host,
       port: this.port,
       auth: {
         user: this.user,
         pass: this.pass,
       },
-    });
-    return;
+    }));
   }
 
   async sendEmail(): Promise<any> {
     try {
-      return await this.transpoter.sendMail({
-        to: this.user_email,
-        from: this.from,
-        subject: this.subject,
-        text: this.message,
-      });
+      return this.transpoter
+        .sendMail({
+          to: this.user_email,
+          from: this.from,
+          subject: this.subject,
+          text: this.message,
+        })
+        .then(() => {
+          console.log("EMAIL SENT");
+        });
     } catch (error) {
       console.error(error);
       throw error;

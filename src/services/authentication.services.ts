@@ -24,20 +24,27 @@ class AuthenticationServices {
         console.error(user);
         throw new X("An Error occured", 400);
       }
-      const otpcode = await crypto.randomBytes(13).toString("hex");
+
+      const code = Math.round(Math.random() * 1000000);
+
+      const hashed = crypto
+        .createHash("sha256")
+        .update(`${code}`)
+        .digest("hex");
 
       const otp = new OTP({
         user: user._id,
-        otp: otpcode,
+        otp: hashed,
         purpose: "sign-up",
       });
-      console.log(otp);
+
+      await otp.save();
 
       await new Email(
-        `Your OTP code is ${otp}`,
+        `Your OTP code is ${code}`,
         "Email Verification",
         user.email
-      );
+      ).sendEmail();
 
       return true;
     } catch (error: any) {
