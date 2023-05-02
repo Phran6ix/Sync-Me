@@ -105,7 +105,7 @@ export default class AuthenticationController extends BaseController {
         password,
       });
 
-      // req.session.user = user;
+      req.session.user = user;
 
       return this.sendResponse(res, "success", 200, {
         message: "User signed in successful",

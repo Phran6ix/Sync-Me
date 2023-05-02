@@ -1,5 +1,5 @@
 import * as crypto from "crypto";
-import UserRepo from "../modules/implementation/user.implementation";
+import UserRepo, { TUser } from "../modules/implementation/user.implementation";
 import { User } from "../database/models/userModel";
 import { OTP } from "../database/models/otpModel";
 
@@ -120,7 +120,7 @@ class AuthenticationServices {
     email?: string;
     username?: string;
     password: string;
-  }): Promise<IUser> {
+  }): Promise<TUser> {
     try {
       const { email, username, password } = payload;
 
@@ -186,7 +186,7 @@ class AuthenticationServices {
     try {
       const user = await this.user_repo.findUserByEmail(email);
       if (!user.isVerified) {
-        throw new HTTPException("Your account is verified.", 400);
+        throw new HTTPException("Your account is not verified.", 400);
       }
       user.password = password;
       await user.save();

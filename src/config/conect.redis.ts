@@ -1,13 +1,12 @@
 import { createClient } from "redis";
 import RedisStore from "connect-redis";
-import session from "express-session";
 
 const redishost: string = process.env.REDIS_HOST;
 const redisport: number = +process.env.REDIS_PORT;
 
 const redisConnection = createClient({
   socket: { host: redishost, port: redisport },
-  legacyMode: true,
+  // legacyMode: true,
 });
 
 (async () => {
@@ -20,7 +19,7 @@ const redisConnection = createClient({
     console.log(`Redis connection failed ${error}`);
   });
 
-  await redisConnection.connect();
+  await redisConnection.connect().catch(console.error);
 })();
 
 const redisStore = new RedisStore({

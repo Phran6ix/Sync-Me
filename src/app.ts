@@ -1,4 +1,4 @@
-import express, { Response, Request } from "express";
+import express from "express";
 
 import session from "express-session";
 
@@ -6,7 +6,7 @@ import controllerInterface from "./interfaces/controller.interface";
 import AuthenticationController from "./controller/authentication.controller";
 import { redisStore } from "./config/conect.redis";
 import handleGlobalError from "./handler/errorHandler";
-import { IUser } from "./interfaces/user.interface";
+
 import { TUser } from "./modules/implementation/user.implementation";
 
 declare global {
@@ -27,7 +27,7 @@ declare global {
 
 declare module "express-session" {
   interface SessionData {
-    user: TUser;
+    user?: TUser;
   }
 }
 
@@ -38,9 +38,9 @@ app.use(
   session({
     store: redisStore,
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
-    cookie: { path: "/", httpOnly: true, secure: false, maxAge: null },
+    cookie: { path: "/", httpOnly: true, secure: false, maxAge: 600000 },
   })
 );
 
