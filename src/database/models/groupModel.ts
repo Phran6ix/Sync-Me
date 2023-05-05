@@ -6,6 +6,7 @@ const groupSchema = new Schema({
   name: {
     type: String,
     required: [true, "Input the group name"],
+    unique: [true, "Group name already exist"],
   },
   description: {
     type: String,
@@ -16,6 +17,10 @@ const groupSchema = new Schema({
       ref: "User",
     },
   ],
+  code: {
+    type: String,
+    unique: false,
+  },
   createdBy: {
     type: Types.ObjectId,
     ref: "User",
@@ -23,6 +28,9 @@ const groupSchema = new Schema({
   created_on: {
     type: Date,
     default: Date.now,
+  },
+  photo: {
+    type: String,
   },
 });
 

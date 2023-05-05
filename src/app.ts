@@ -5,6 +5,7 @@ import morgan from "morgan";
 
 import controllerInterface from "./interfaces/controller.interface";
 import AuthenticationController from "./controller/authentication.controller";
+import GroupController from "./controller/group.controller";
 import { redisStore } from "./config/conect.redis";
 import handleGlobalError from "./handler/errorHandler";
 
@@ -35,7 +36,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
-    cookie: { path: "/", httpOnly: true, secure: false, maxAge: 600000 },
+    cookie: { path: "/", httpOnly: true, secure: false, maxAge: 6000000 },
   })
 );
 
@@ -45,7 +46,7 @@ function runEndpoint(controllers: controllerInterface[]) {
   });
 }
 
-runEndpoint([new AuthenticationController()]);
+runEndpoint([new AuthenticationController(), new GroupController()]);
 app.use(handleGlobalError);
 
 export default app;

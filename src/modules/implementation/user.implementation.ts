@@ -16,8 +16,7 @@ export default class UserRepo implements IUserRepo<IUser> {
   public async createUser(User: Partial<IUser>): Promise<TUser> {
     const user: TUser = await this.userModel.create(User);
     if (!user) {
-      console.log(`user:: ${user}`);
-      throw new HTTPException("User not created", 400);
+      throw new HTTPException("User not created", 500);
     }
 
     return user;
@@ -44,6 +43,7 @@ export default class UserRepo implements IUserRepo<IUser> {
     }
     return user;
   }
+
   public async findUserByUsername(username: string): Promise<TUser> {
     const user: TUser = await this.userModel
       .findOne({ username })
@@ -53,6 +53,7 @@ export default class UserRepo implements IUserRepo<IUser> {
     }
     return user;
   }
+
   public async userExists(username?: string, email?: string): Promise<Boolean> {
     let user: IUser;
     if (email) {
@@ -65,6 +66,7 @@ export default class UserRepo implements IUserRepo<IUser> {
 
     return true;
   }
+
   public async updateUser(
     userId: string,
     User: Partial<IUser>
