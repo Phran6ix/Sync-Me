@@ -56,7 +56,7 @@ class AuthenticationServices {
     }
   }
 
-  public async verifyAccount(otp: any): Promise<Boolean> {
+  public async verifyAccount(otp: string): Promise<Partial<IUser>> {
     try {
       const hashed = crypto.createHash("sha256").update(`${otp}`).digest("hex");
 
@@ -72,11 +72,11 @@ class AuthenticationServices {
       otpDoc.verified = true;
       await otpDoc.save();
 
-      await User.findByIdAndUpdate(otpDoc.user, {
+      const user = await User.findByIdAndUpdate(otpDoc.user, {
         isVerified: true,
       });
 
-      return true;
+      return { _id: user.id, fullname: user.fullname, username: user.username };
     } catch (error) {
       throw error;
     }
@@ -182,9 +182,9 @@ class AuthenticationServices {
     }
   }
 
-  public async resetPassword(email: string, password: string): Promise<void> {
+  public async resetPassword(id: string, password: string): Promise<void> {
     try {
-      const user = await this.user_repo.findUserByEmail(email);
+      const user = await this.user_repo.findUserById(id);
       if (!user.isVerified) {
         throw new HTTPException("Your account is not verified.", 400);
       }

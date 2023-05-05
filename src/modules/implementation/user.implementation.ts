@@ -36,7 +36,7 @@ export default class UserRepo implements IUserRepo<IUser> {
     return user;
   }
 
-  public async findUserById(userId: string): Promise<IUser> {
+  public async findUserById(userId: string): Promise<TUser> {
     const user: TUser = await this.userModel.findById(userId);
 
     if (!user) {

@@ -24,4 +24,10 @@ const loginSchema = object({
   password: string().required("Please input password").trim(),
 });
 
-export { signupSchema, loginSchema };
+const resetPasswordSchema = object({
+  password: string()
+    .trim()
+    .min(8, "Password should be a minimum of 8 characters"),
+});
+
+export { signupSchema, loginSchema, resetPasswordSchema };

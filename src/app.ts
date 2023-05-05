@@ -1,6 +1,7 @@
 import express from "express";
 
 import session from "express-session";
+import morgan from "morgan";
 
 import controllerInterface from "./interfaces/controller.interface";
 import AuthenticationController from "./controller/authentication.controller";
@@ -12,15 +13,7 @@ import { TUser } from "./modules/implementation/user.implementation";
 declare global {
   namespace Express {
     interface Request {
-      user?: {
-        fullName: string;
-        photo?: string;
-        email: string;
-        username: string;
-        groups: [string];
-        password: string;
-        isVerified: boolean;
-      };
+      user?: TUser;
     }
   }
 }
@@ -33,6 +26,8 @@ declare module "express-session" {
 
 const app = express();
 app.use(express.json());
+
+app.use(morgan("dev"));
 
 app.use(
   session({

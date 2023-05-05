@@ -1,6 +1,10 @@
 import { Request, Response, Router } from "express";
 import BaseController from "./BaseController";
-import { signupSchema, loginSchema } from "../validator/validator";
+import {
+  signupSchema,
+  loginSchema,
+  resetPasswordSchema,
+} from "../validator/validator";
 import AuthenticationServices from "../services/authentication.services";
 import { hashpassword } from "../utils/bcrypt/hashpassword";
 import { NextFunction } from "express-serve-static-core";
@@ -66,12 +70,13 @@ export default class AuthenticationController extends BaseController {
     next: NextFunction
   ): Promise<Response> {
     try {
-      const otp = req.query.otp;
+      const otp = "" + req.query.otp;
 
-      await this.authService.verifyAccount(otp);
+      const response = await this.authService.verifyAccount(otp);
 
       return this.sendResponse(res, "success", 200, {
         message: "Account has verified",
+        user: response,
       });
     } catch (error) {
       next(error);
@@ -138,9 +143,12 @@ export default class AuthenticationController extends BaseController {
     next: NextFunction
   ): Promise<Response> {
     try {
-      let { email, password } = req.body;
+      let { password } = await resetPasswordSchema.validate(req.body);
+      let id = "" + req.query.userid;
+
       password = await hashpassword(password);
-      await this.authService.resetPassword(email, password);
+
+      await this.authService.resetPassword(id, password);
       return this.sendResponse(res, "success", 200, {
         message: "Password reset successful",
       });
