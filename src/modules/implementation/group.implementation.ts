@@ -16,11 +16,11 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
     return await this.group_model.create(Group);
   }
 
-  async userInGroup(group: string, user: string): Promise<Boolean> {
+  async userInGroup(group: TGroup, user: string): Promise<Boolean> {
     try {
-      const groups: TGroup = await this.group_model.findOne({ name: group });
-      const exist = groups.members.id(user);
-      if (exist.length < 1 || exist == null) {
+      // const groups: TGroup = await this.group_model.findOne({ name: group });
+
+      if (group.members.includes(user)) {
         return false;
       }
       return true;
@@ -28,12 +28,8 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
       throw error;
     }
   }
-  async isAdmin(group: string, user: string): Promise<Boolean> {
-    const admin = await this.group_model.findOne({
-      name: group,
-      createdBy: user,
-    });
-    if (!admin) {
+  async isAdmin(group: TGroup, user: string): Promise<Boolean> {
+    if (group.createdBy != user) {
       return false;
     }
     return true;

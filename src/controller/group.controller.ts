@@ -23,6 +23,9 @@ export default class GroupController extends BaseController {
     this.router.get(`${this.path}/get-link/:id`, protect, (...args) =>
       this.HTTPGetGroupLink(...args)
     );
+    this.router.patch(`${this.path}/upload-photo`, protect, (...a) =>
+      this.HTTPUploadPhoto(...a)
+    );
   }
 
   private async HTTPCreateNewGroup(
@@ -51,7 +54,7 @@ export default class GroupController extends BaseController {
   ): Promise<Response> {
     try {
       const group = await this.groupservice.addAMemberToGroup(
-        "" + req.query.id,
+        "" + req.query.group,
         req.body.user
       );
       return this.sendResponse(res, "success", 200, {
@@ -95,6 +98,23 @@ export default class GroupController extends BaseController {
         req.body
       );
       return this.sendResponse(res, "success", 203);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPUploadPhoto(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      await this.groupservice.uploadPhoto(req.params.id, req.user.id, {
+        photo: req.body.photo,
+      });
+      return this.sendResponse(res, "success", 202, {
+        message: "Photo uploaded successfully",
+      });
     } catch (error) {
       next(error);
     }

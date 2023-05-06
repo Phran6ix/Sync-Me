@@ -24,7 +24,6 @@ class AuthenticationServices {
       const user = await this.user_repo.createUser(payload);
 
       if (!user) {
-        console.error(user);
         throw new HTTPException("An Error occured", 400);
       }
 

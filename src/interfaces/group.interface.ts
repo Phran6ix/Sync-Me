@@ -9,4 +9,5 @@ export interface IGroup {
   createdBy: string;
   created_on: Date;
   code: string;
+  photo: string;
 }
