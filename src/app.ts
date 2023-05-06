@@ -1,4 +1,4 @@
-import express from "express";
+import express, { NextFunction, Request, Response } from "express";
 
 import session from "express-session";
 import morgan from "morgan";
@@ -45,6 +45,10 @@ function runEndpoint(controllers: controllerInterface[]) {
     app.use("/", contoller.router);
   });
 }
+
+// app.use('*', (req: Request, res: Response, next: NextFunction) => {
+//   res.status(404).send('This Route is not Found, Please check the url and try again')
+// })
 
 runEndpoint([new AuthenticationController(), new GroupController()]);
 app.use(handleGlobalError);

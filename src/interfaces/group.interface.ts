@@ -5,7 +5,7 @@ export interface IGroup {
   _id: Types.ObjectId;
   name: string;
   description: string;
-  members: string[] & Document;
+  members: string[];
   createdBy: string;
   created_on: Date;
   code: string;

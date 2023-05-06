@@ -16,19 +16,19 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
     return await this.group_model.create(Group);
   }
 
-  async userInGroup(group: TGroup, user: string): Promise<Boolean> {
+  userInGroup(group: TGroup, user: string): Boolean {
     try {
       // const groups: TGroup = await this.group_model.findOne({ name: group });
-
-      if (group.members.includes(user)) {
+      if (!group.members.includes(user)) {
         return false;
       }
+
       return true;
     } catch (error) {
       throw error;
     }
   }
-  async isAdmin(group: TGroup, user: string): Promise<Boolean> {
+  isAdmin(group: TGroup, user: string): Boolean {
     if (group.createdBy != user) {
       return false;
     }
