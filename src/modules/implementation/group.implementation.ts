@@ -45,7 +45,7 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
   async updateGroup(id: string, payload: object): Promise<TGroup> {
     return this.group_model.findByIdAndUpdate(id, payload);
   }
-  async findAGroup(id: string): Promise<TGroup> {
-    return this.group_model.findById(id);
+  async findAGroupByCode(code: string): Promise<TGroup> {
+    return this.group_model.findOne({ code });
   }
 }

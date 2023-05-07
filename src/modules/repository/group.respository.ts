@@ -5,5 +5,5 @@ export interface IGroupRepo<T> {
   getAllGroup(): Promise<T[]>;
   getAGroupById(id: string): Promise<T>;
   updateGroup(id: string, payload: object): Promise<T>;
-  findAGroup(id: string): Promise<T>;
+  findAGroupByCode(code: string): Promise<T>;
 }

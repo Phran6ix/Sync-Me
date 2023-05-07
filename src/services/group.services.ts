@@ -37,7 +37,7 @@ export default class GroupServices {
 
   async addAMemberToGroup(id: string, user: Partial<TUser>): Promise<IGroup> {
     try {
-      const group = await this.group_repo.findAGroup(id);
+      const group = await this.group_repo.getAGroupById(id);
       if (!group) {
         throw new HTTPException("Group not found", 404);
       }
@@ -62,9 +62,19 @@ export default class GroupServices {
     }
   }
 
-  async createLinkForGroup(url: string, id: string): Promise<String> {
+  async createLinkForGroup(
+    url: string,
+    id: TGroup["_id"],
+    user: IUser["_id"]
+  ): Promise<String> {
     try {
-      const group = await this.group_repo.findAGroup(id);
+      const group = await this.group_repo.getAGroupById(id);
+      if (!group)
+        throw new HTTPException("Group with this ID does not exist", 404);
+
+      if (!this.group_repo.userInGroup(group, user))
+        throw new HTTPException("You are not authorized for this action", 400);
+
       url = url + `${group.code}`;
       return url;
     } catch (error) {
@@ -78,7 +88,7 @@ export default class GroupServices {
     payload: Partial<IGroup>
   ): Promise<void> {
     try {
-      const group = await this.group_repo.findAGroup(id);
+      const group = await this.group_repo.getAGroupById(id);
       if (!group)
         throw new HTTPException("Group with this ID does not exist", 404);
 
@@ -99,7 +109,7 @@ export default class GroupServices {
     payload: { photo: string }
   ): Promise<void> {
     try {
-      const group: TGroup = await this.group_repo.findAGroup(id);
+      const group: TGroup = await this.group_repo.getAGroupById(id);
 
       if (!group)
         throw new HTTPException("Group with this id does not exist", 404);
@@ -119,7 +129,7 @@ export default class GroupServices {
     user: TUser["_id"]
   ): Promise<IGroup> {
     try {
-      const group: TGroup = await this.group_repo.findAGroup(groupid);
+      const group: TGroup = await this.group_repo.getAGroupById(groupid);
 
       if (!this.group_repo.userInGroup(group, user))
         throw new HTTPException("You are not a member of this group", 404);
@@ -138,7 +148,7 @@ export default class GroupServices {
 
   async getGroupDetails(groupid: TGroup["_id"]): Promise<TGroup> {
     try {
-      const group = await this.group_repo.findAGroup(groupid);
+      const group = await this.group_repo.getAGroupById(groupid);
       await group.populate({
         path: "members",
       });
@@ -175,7 +185,22 @@ export default class GroupServices {
       throw error;
     }
   }
-}
 
-//TODO
-// AN ENDPOINT TO REMOVE A USER BY ADMIN
+  async joinGroupViaLink(
+    code: IGroup["code"],
+    user: IUser["_id"]
+  ): Promise<string> {
+    try {
+      const group: TGroup = await this.group_repo.findAGroupByCode(code);
+      if (!group) throw new HTTPException("Invalid code", 404);
+
+      if (this.group_repo.userInGroup(group, user))
+        throw new HTTPException("You are already a member of this group", 400);
+      group.members.push(user);
+      await group.save();
+      return group.name;
+    } catch (error) {
+      throw error;
+    }
+  }
+}

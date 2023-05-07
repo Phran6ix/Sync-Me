@@ -39,6 +39,9 @@ export default class GroupController extends BaseController {
     this.router.delete(`${this.path}/leave-group/:id`, protect, (...a) =>
       this.HTTPLeaveGroup(...a)
     );
+    this.router.patch(`${this.path}/link/:id`, protect, (...a) =>
+      this.HTTPJoinGroupByLink(...a)
+    );
   }
 
   private async HTTPCreateNewGroup(
@@ -88,7 +91,8 @@ export default class GroupController extends BaseController {
 
       const groupurl = await this.groupservice.createLinkForGroup(
         url,
-        req.params.id
+        req.params.id,
+        req.user._id
       );
 
       return this.sendResponse(res, "success", 202, {
@@ -181,6 +185,24 @@ export default class GroupController extends BaseController {
         req.user._id
       );
       return this.sendResponse(res, "success", 204);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPJoinGroupByLink(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      const group = await this.groupservice.joinGroupViaLink(
+        req.params.id,
+        req.user._id
+      );
+      return this.sendResponse(res, "success", 203, {
+        message: `You have joined ${group} by link`,
+      });
     } catch (error) {
       next(error);
     }
