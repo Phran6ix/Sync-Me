@@ -9,6 +9,8 @@ const redisConnection = createClient({
   // legacyMode: true,
 });
 
+export type RedisConnectionType = typeof redisConnection;
+
 (async () => {
   redisConnection.on("connect", () => {
     console.log(
@@ -26,4 +28,4 @@ const redisStore = new RedisStore({
   client: redisConnection,
 });
 
-export { redisStore };
+export { redisStore, redisConnection as redisClient };

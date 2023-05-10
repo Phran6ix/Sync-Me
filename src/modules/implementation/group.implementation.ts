@@ -3,12 +3,16 @@ import { Group } from "../../database/models/groupModel";
 import { IGroup } from "../../interfaces/group.interface";
 import HTTPException from "../../exception/exceptions";
 import { Document } from "mongoose";
+import { redisClient } from "../../config/conect.redis";
+import cacherepo from "./cache.implmentation";
 
 export type TGroup = IGroup & Document;
 
 export default class GroupRepo implements IGroupRepo<TGroup> {
   private group_model;
+  private cache;
   constructor() {
+    this.cache = new cacherepo();
     this.group_model = Group;
   }
 
@@ -28,6 +32,7 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
       throw error;
     }
   }
+
   isAdmin(group: TGroup, user: string): Boolean {
     if (group.createdBy != user) {
       return false;
@@ -36,15 +41,30 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
   }
 
   async getAllGroup(): Promise<TGroup[]> {
-    return await this.group_model.find();
+    let groups: TGroup[];
+    const redisgroups = await this.cache.getItemsFromCache<TGroup>("groups");
+
+    if (redisgroups) return redisgroups;
+
+    groups = await this.group_model.find();
+    await this.cache.addItemToCache<TGroup[]>("group", groups);
+    return groups;
   }
 
   async getAGroupById(id: string): Promise<TGroup> {
-    return await this.group_model.findById(id);
+    const redisdata = await this.cache.getItemFromCache<TGroup>(`group-${id}`);
+    if (redisdata) return redisdata;
+
+    const data = await this.group_model.findById(id);
+    await this.cache.addItemToCache<TGroup>(`group-${data._id}`, data);
+    return data;
   }
   async updateGroup(id: string, payload: object): Promise<TGroup> {
-    return this.group_model.findByIdAndUpdate(id, payload);
+    const data = this.group_model.findByIdAndUpdate(id, payload);
+    await this.cache.updateDataInCache(`group-${id}`, data);
+    return data;
   }
+
   async findAGroupByCode(code: string): Promise<TGroup> {
     return this.group_model.findOne({ code });
   }
