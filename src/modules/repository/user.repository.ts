@@ -1,7 +1,5 @@
-import { IUser } from "../../interfaces/user.interface";
-
 export interface IUserRepo<T> {
-  createUser(User: Partial<T>): Promise<IUser>;
+  createUser(User: Partial<T>): Promise<T>;
   findUserByEmail(email: string): Promise<T | null>;
   findUserByUsername(username: string): Promise<T | null>;
   findUserById(userId: string): Promise<T | null>;

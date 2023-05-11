@@ -6,6 +6,7 @@ import morgan from "morgan";
 import controllerInterface from "./interfaces/controller.interface";
 import AuthenticationController from "./controller/authentication.controller";
 import GroupController from "./controller/group.controller";
+import UserController from "./controller/user.controller";
 import { redisStore } from "./config/conect.redis";
 import handleGlobalError from "./handler/errorHandler";
 
@@ -50,7 +51,11 @@ function runEndpoint(controllers: controllerInterface[]) {
 //   res.status(404).send('This Route is not Found, Please check the url and try again')
 // })
 
-runEndpoint([new AuthenticationController(), new GroupController()]);
+runEndpoint([
+  new AuthenticationController(),
+  new GroupController(),
+  new UserController(),
+]);
 app.use(handleGlobalError);
 
 export default app;

@@ -19,9 +19,7 @@ export default class EventRepo implements IEventsRepo<TEvents> {
   async getAllEvents(group_id: Types.ObjectId): Promise<TEvents[]> {
     return await this.event_model.find({ group: group_id });
   }
-  //   async getAnEvent(group_id: Types.ObjectId): Promise<TEvents> {
-  //     return await this.event_model.findOne({ group: group_id });
-  //   }
+
   async getEventById(id: string): Promise<TEvents> {
     return await this.event_model.findById(id);
   }
