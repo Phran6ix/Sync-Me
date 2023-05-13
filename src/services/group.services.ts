@@ -149,9 +149,7 @@ export default class GroupServices {
   async getGroupDetails(groupid: TGroup["_id"]): Promise<TGroup> {
     try {
       const group = await this.group_repo.getAGroupById(groupid);
-      await group.populate({
-        path: "members",
-      });
+
       return group;
     } catch (error) {
       throw error;
@@ -196,9 +194,23 @@ export default class GroupServices {
 
       if (this.group_repo.userInGroup(group, user))
         throw new HTTPException("You are already a member of this group", 400);
+
       group.members.push(user);
       await group.save();
+
       return group.name;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getUsersGroup(user: TUser["_id"]): Promise<TGroup[]> {
+    try {
+      const data = await this.group_repo.getUserGroups(user);
+      // if (data.length < 1)
+      //   throw new HTTPException("You do not belong in any group", 400);
+
+      return data;
     } catch (error) {
       throw error;
     }

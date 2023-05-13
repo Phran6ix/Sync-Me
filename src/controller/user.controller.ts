@@ -6,7 +6,7 @@ import { protect } from "../middleware/auth.middleware";
 
 export default class UserController extends BaseController {
   public path: string = "/user";
-  public router: Router;
+  public router: Router = Router();
 
   user_service;
   constructor() {
@@ -19,24 +19,27 @@ export default class UserController extends BaseController {
     this.router.get(`${this.path}/me`, protect, (...a) =>
       this.HTTPGetUserProfile(...a)
     );
+
     this.router.patch(`${this.path}/update-me`, protect, (...a) =>
       this.HTTPUpdateUserProfile(...a)
     );
+
     this.router.patch(`${this.path}/update-password`, protect, (...a) =>
       this.HTTPUpdateUserPassword(...a)
     );
+
     this.router.patch(`${this.path}/upload-photo`, protect, (...a) =>
       this.HTTPUploadProfilePhoto(...a)
     );
   }
 
-  private HTTPGetUserProfile(
+  private async HTTPGetUserProfile(
     req: Request,
     res: Response,
     next: NextFunction
-  ): Response {
+  ): Promise<Response> {
     try {
-      const user = this.user_service.getUserProfile(req.user);
+      const user = await this.user_service.getUserProfile(req.user);
       return this.sendResponse(res, "success", 200, user);
     } catch (error) {
       next(error);

@@ -3,7 +3,7 @@ import EventRepo, {
 } from "../modules/implementation/event.implementation";
 import { TGroup } from "../modules/implementation/group.implementation";
 
-class EventService {
+export default class EventService {
   private event_repo: EventRepo;
 
   constructor() {

@@ -46,7 +46,10 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
 
     if (redisgroups) return redisgroups;
 
-    groups = await this.group_model.find();
+    groups = await this.group_model
+      .find()
+      .populate("members", "-__v -isVerified")
+      .populate("createdBy", "-__v -_id -isVerified");
     await this.cache.addItemToCache<TGroup[]>("group", groups);
     return groups;
   }
@@ -55,10 +58,15 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
     const redisdata = await this.cache.getItemFromCache<TGroup>(`group-${id}`);
     if (redisdata) return redisdata;
 
-    const data = await this.group_model.findById(id);
+    const data = await this.group_model
+      .findById(id)
+      .populate("members", "-__v -isVerified")
+      .populate("createdBy", "-__v -_id -isVerified");
+
     await this.cache.addItemToCache<TGroup>(`group-${data._id}`, data);
     return data;
   }
+
   async updateGroup(id: string, payload: object): Promise<TGroup> {
     const data = this.group_model.findByIdAndUpdate(id, payload);
     await this.cache.updateDataInCache(`group-${id}`, data);
@@ -67,5 +75,25 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
 
   async findAGroupByCode(code: string): Promise<TGroup> {
     return this.group_model.findOne({ code });
+  }
+
+  async getUserGroups(user_id: string): Promise<TGroup[]> {
+    const redis_data = await this.cache.getItemsFromCache<TGroup>(
+      `${user_id}-groups`
+    );
+    // if (redis_data) return redis_data;
+
+    const useringroup = await this.group_model
+      .find({
+        members: user_id,
+      })
+      .populate("createdBy", "-__v -_id -isVerified -email ")
+      .select("name description createdBy photo");
+
+    await this.cache.addItemToCache<TGroup[]>(
+      `${useringroup}-groups`,
+      useringroup
+    );
+    return useringroup;
   }
 }

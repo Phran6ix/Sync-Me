@@ -48,6 +48,7 @@ export default class UserRepo implements IUserRepo<IUser> {
     const user: TUser = await this.userModel
       .findOne({ username })
       .select("+password");
+
     if (!user) {
       return null;
     }
@@ -71,7 +72,9 @@ export default class UserRepo implements IUserRepo<IUser> {
     userId: string,
     User: Partial<IUser>
   ): Promise<Boolean> {
-    const user = await this.userModel.findByIdAndUpdate(userId, { User });
+    console.log(userId);
+    const user = await this.userModel.findByIdAndUpdate(userId, User);
+
     if (!user) return false;
     return true;
   }

@@ -3,20 +3,22 @@ import { IUser } from "../interfaces/user.interface";
 import UserRepo, { TUser } from "../modules/implementation/user.implementation";
 import { IUserRepo } from "../modules/repository/user.repository";
 import { hashpassword } from "../utils/bcrypt/hashpassword";
+import { resetPasswordSchema } from "../validator/validator";
 
 export default class UserService {
   private user_repo;
-  constructor(user_repo: IUserRepo<IUser>) {
+  constructor(user_repo: IUserRepo<TUser>) {
     this.user_repo = user_repo;
   }
 
-  getUserProfile(user: TUser): TUser {
-    return user;
+  async getUserProfile(user: TUser): Promise<TUser> {
+    return await this.user_repo.findUserById(user._id);
   }
 
   async updateUserProfile(user: TUser, payload: Partial<IUser>): Promise<void> {
     try {
       const updateuser = await this.user_repo.updateUser(user._id, payload);
+
       if (!updateuser) throw new HTTPException("An Error occured", 400);
     } catch (error) {
       throw error;
@@ -25,8 +27,10 @@ export default class UserService {
 
   async updateUserPassword(user: TUser, password: string): Promise<void> {
     try {
-      password = await hashpassword(password);
-      const update_user = await this.updateUserProfile(user._id, {
+      const payload = await resetPasswordSchema.validate({ password });
+
+      password = await hashpassword(payload.password);
+      const update_user = await this.updateUserProfile(user, {
         password,
       });
       return;
@@ -37,7 +41,7 @@ export default class UserService {
 
   async updateUserProfilePicture(user: TUser, photo: string): Promise<void> {
     try {
-      await this.updateUserProfile(user._id, { photo });
+      await this.updateUserProfile(user, { photo });
       return;
     } catch (error) {
       throw error;

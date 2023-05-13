@@ -30,6 +30,10 @@ export default class GroupController extends BaseController {
       this.HTTPRemoveAUserFromGroup(...a)
     );
 
+    this.router.get(`${this.path}/for-user`, protect, (...s) =>
+      this.HTTPGetGroupsForUser(...s)
+    );
+
     this.router.patch(`${this.path}/upload-photo/:id`, protect, (...a) =>
       this.HTTPUploadPhoto(...a)
     );
@@ -202,6 +206,23 @@ export default class GroupController extends BaseController {
       );
       return this.sendResponse(res, "success", 203, {
         message: `You have joined ${group} by link`,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  private async HTTPGetGroupsForUser(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<Response> {
+    try {
+      const groups_for_user = await this.groupservice.getUsersGroup(
+        req.user._id
+      );
+      return this.sendResponse(res, "success", 200, {
+        groups: groups_for_user,
       });
     } catch (error) {
       next(error);
