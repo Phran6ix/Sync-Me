@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === "production")
     "<password>",
     `${process.env.MONGO_PASSWORD}`
   );
+
 async function connectDB() {
   return mongoose
     .connect(MONGO_URL)

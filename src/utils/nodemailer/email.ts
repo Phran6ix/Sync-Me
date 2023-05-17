@@ -29,14 +29,27 @@ export default class Email {
   }
 
   createConnection(): any {
-    return (this.transpoter = nodemailer.createTransport({
-      host: this.host,
-      port: this.port,
-      auth: {
-        user: this.user,
-        pass: this.pass,
-      },
-    }));
+    if (process.env.NODE_ENV === "development") {
+      return (this.transpoter = nodemailer.createTransport({
+        host: this.host,
+        port: this.port,
+        auth: {
+          user: this.user,
+          pass: this.pass,
+        },
+      }));
+    } else if (process.env.NODE_ENV === "production") {
+      return (this.transpoter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        port: 587,
+        secure: false,
+        auth: {
+          user: this.user,
+          pass: this.pass,
+        },
+      }));
+    }
   }
 
   async sendEmail(): Promise<any> {
