@@ -41,6 +41,10 @@ app.use(
   })
 );
 
+app.get("/", (res: Response) => {
+  res.send("Welcome to Sync Me API");
+});
+
 function runEndpoint(controllers: controllerInterface[]) {
   controllers.forEach((contoller) => {
     app.use("/", contoller.router);
