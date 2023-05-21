@@ -1,15 +1,22 @@
 import { createClient } from "redis";
 import RedisStore from "connect-redis";
+import { RedisClientType } from "redis";
 
 const redishost: string = process.env.REDIS_HOST || "localhost";
 const redisport: number = +process.env.REDIS_PORT;
 
-const redisConnection = createClient();
+let redisConnection: RedisClientType;
 
-// const redisConnection = createClient({
-//   socket: { host: redishost, port: redisport },
-//   // legacyMode: true,
-// });
+if (process.env.NODE_ENV == "production") {
+  redisConnection = createClient({ url: process.env.REDIS_URL });
+}
+
+if (process.env.NODE_ENV == "development") {
+  redisConnection = createClient({
+    socket: { host: redishost, port: redisport },
+    // legacyMode: true,
+  });
+}
 
 export type RedisConnectionType = typeof redisConnection;
 

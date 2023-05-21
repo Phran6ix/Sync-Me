@@ -6,7 +6,8 @@
   "scripts": {
     "start": "npx nodemon ./src/server.ts",
     "build": "npm install && tsc",
-    "start:prod": "NODE_ENV=production node ./build/server.js"
+    "start:prod": "NODE_ENV=production node ./build/server.js",
+    "start:dev": "NODE_ENV=production npx nodemon ./src/server.ts"
   },
   "author": "Francis Olatinwo",
   "license": "ISC",
