@@ -1,6 +1,8 @@
 import { Document, ObjectId, Schema, Types, model } from "mongoose";
 import { ITask } from "../../interfaces/task.interface";
 
+export type TTask = ITask & Document;
+
 const tasklistSchema = new Schema({
   title: {
     type: String,

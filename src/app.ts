@@ -41,9 +41,30 @@ app.use(
   })
 );
 
-app.get("/", (res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.send("Welcome to Sync Me API");
 });
+
+app.get(
+  "/google-sign-in",
+  (req: Request, res: Response, next: NextFunction) => {
+    // firebase
+    //   .auth()
+    //   .getRedirectResult()
+    //   .then(function (result) {
+    //     if (result.credential) {
+    //       // This gives you a Google Access Token.
+    //       var token = result.credential.accessToken;
+    //     }
+    //     var user = result.user;
+    //   });
+    // // Start a sign in process for an unauthenticated user.
+    // var provider = new firebase.auth.GoogleAuthProvider();
+    // provider.addScope("profile");
+    // provider.addScope("email");
+    // firebase.auth().signInWithRedirect(provider);
+  }
+);
 
 function runEndpoint(controllers: controllerInterface[]) {
   controllers.forEach((contoller) => {

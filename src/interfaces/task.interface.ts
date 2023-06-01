@@ -7,10 +7,11 @@ export interface ITasklist {
 }
 
 export interface ITask {
+  _id: string;
   title: string;
   progress_rate: number;
   sharedBy: string;
-  tasklists: string[]; //Types.DocumentArray<ITasklist>;
+  tasklists: Types.DocumentArray<ITasklist>;
   deadline: Date;
   group: string; //Types.DocumentArray<IGroup>;
 }
