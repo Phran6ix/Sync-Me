@@ -56,7 +56,7 @@ export default class AuthenticationController extends BaseController {
 
       await this.authService.Register({ password, ...data });
 
-      return this.sendResponse(res, "success", 201, {
+      return this.sendResponse(res, 201, {
         message: "User successfully registered",
       });
     } catch (error) {
@@ -74,7 +74,7 @@ export default class AuthenticationController extends BaseController {
 
       const response = await this.authService.verifyAccount(otp);
 
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         message: "Account has verified",
         user: response,
       });
@@ -87,7 +87,7 @@ export default class AuthenticationController extends BaseController {
     try {
       const email = req.body.email;
       await this.authService.resendOTP(email);
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         message: "OTP has been sent to your email",
       });
     } catch (error) {
@@ -112,8 +112,8 @@ export default class AuthenticationController extends BaseController {
 
       req.session.user = user;
 
-      return this.sendResponse(res, "success", 200, {
-        message: "User signed in successful",
+      return this.sendResponse(res, 200, {
+        message: "User signed inl",
         user,
       });
     } catch (error) {
@@ -129,7 +129,7 @@ export default class AuthenticationController extends BaseController {
       const { email } = req.body;
 
       await this.authService.forgotPassword(email);
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         message: "OTP has been sent to your email",
       });
     } catch (error) {
@@ -149,7 +149,7 @@ export default class AuthenticationController extends BaseController {
       password = await hashpassword(password);
 
       await this.authService.resetPassword(id, password);
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         message: "Password reset successful",
       });
     } catch (error) {

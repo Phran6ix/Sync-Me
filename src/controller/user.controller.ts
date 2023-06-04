@@ -40,7 +40,7 @@ export default class UserController extends BaseController {
   ): Promise<Response> {
     try {
       const user = await this.user_service.getUserProfile(req.user);
-      return this.sendResponse(res, "success", 200, user);
+      return this.sendResponse(res, 200, user);
     } catch (error) {
       next(error);
     }
@@ -56,7 +56,7 @@ export default class UserController extends BaseController {
         req.user,
         req.body
       );
-      return this.sendResponse(res, "success", 203, {
+      return this.sendResponse(res, 203, {
         message: "User profile has been updated",
       });
     } catch (error) {
@@ -71,7 +71,7 @@ export default class UserController extends BaseController {
   ): Promise<Response> {
     try {
       await this.user_service.updateUserPassword(req.user, req.body.password);
-      return this.sendResponse(res, "success", 203, {
+      return this.sendResponse(res, 203, {
         message: "Password has been updated",
       });
     } catch (error) {
@@ -89,7 +89,7 @@ export default class UserController extends BaseController {
         req.user,
         req.body.photo
       );
-      return this.sendResponse(res, "success", 203, {
+      return this.sendResponse(res, 203, {
         message: "Profile photo has been uploaded successfully",
       });
     } catch (error) {

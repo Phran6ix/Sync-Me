@@ -59,7 +59,7 @@ export default class GroupController extends BaseController {
         ...req.body,
       });
 
-      return this.sendResponse(res, "success", 201, {
+      return this.sendResponse(res, 201, {
         message: "You have created a group successfully",
       });
     } catch (error) {
@@ -77,7 +77,7 @@ export default class GroupController extends BaseController {
         "" + req.query.group,
         req.body
       );
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         message: `User added to ${group.name}`,
       });
     } catch (error) {
@@ -99,7 +99,7 @@ export default class GroupController extends BaseController {
         req.user._id
       );
 
-      return this.sendResponse(res, "success", 202, {
+      return this.sendResponse(res, 202, {
         url: groupurl,
       });
     } catch (error) {
@@ -118,7 +118,7 @@ export default class GroupController extends BaseController {
         req.params.id,
         req.body
       );
-      return this.sendResponse(res, "success", 203);
+      return this.sendResponse(res, 203);
     } catch (error) {
       next(error);
     }
@@ -133,7 +133,7 @@ export default class GroupController extends BaseController {
       await this.groupservice.uploadPhoto(req.params.id, req.user._id, {
         photo: req.body.photo,
       });
-      return this.sendResponse(res, "success", 202, {
+      return this.sendResponse(res, 202, {
         message: "Photo uploaded successfully",
       });
     } catch (error) {
@@ -152,7 +152,7 @@ export default class GroupController extends BaseController {
         req.params.id,
         req.user._id
       );
-      return this.sendResponse(res, "success", 204, {
+      return this.sendResponse(res, 204, {
         message: `You have left ${group.name}`,
       });
     } catch (error) {
@@ -169,7 +169,7 @@ export default class GroupController extends BaseController {
       const group = await this.groupservice.getGroupDetails(
         "" + req.query.group
       );
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         group,
       });
     } catch (error) {
@@ -188,7 +188,7 @@ export default class GroupController extends BaseController {
         req.body.user,
         req.user._id
       );
-      return this.sendResponse(res, "success", 204);
+      return this.sendResponse(res, 204);
     } catch (error) {
       next(error);
     }
@@ -204,7 +204,7 @@ export default class GroupController extends BaseController {
         req.params.id,
         req.user._id
       );
-      return this.sendResponse(res, "success", 203, {
+      return this.sendResponse(res, 203, {
         message: `You have joined ${group} by link`,
       });
     } catch (error) {
@@ -221,7 +221,7 @@ export default class GroupController extends BaseController {
       const groups_for_user = await this.groupservice.getUsersGroup(
         req.user._id
       );
-      return this.sendResponse(res, "success", 200, {
+      return this.sendResponse(res, 200, {
         groups: groups_for_user,
       });
     } catch (error) {

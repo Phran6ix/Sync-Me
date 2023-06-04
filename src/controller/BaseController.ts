@@ -13,14 +13,9 @@ abstract class BaseController {
 
   constructor() {}
   //  public readonly S
-  public sendResponse<T>(
-    res: Response,
-    status: string,
-    code: number,
-    data?: T
-  ) {
+  public sendResponse<T>(res: Response, code: number, data?: T) {
     return res.status(code).json({
-      success: `${status}`.includes("success") ? true : false || true,
+      success: `${code}`.includes("2") ? true : false || true,
       data: data,
     });
   }

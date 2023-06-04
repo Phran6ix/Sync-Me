@@ -3,7 +3,7 @@ import { TTask } from "../database/models";
 import { taskSchema } from "../validator/task.validator";
 import HTTPException from "../exception/exceptions";
 
-class TaskService {
+export default class TaskService {
   private task_repo;
   constructor(task_repo: ITaskRepo<TTask>) {
     this.task_repo = task_repo;
@@ -69,8 +69,10 @@ class TaskService {
     }
   }
 
-  async markTasksAsComplete(task_id: TTask["_id"]): Promise<void> {
+  async markTasksAsComplete(task_id: string): Promise<void> {
     try {
+      const task = await this.task_repo.getTaskWithTaskList(task_id);
+      console.log(task);
     } catch (error) {
       throw error;
     }
