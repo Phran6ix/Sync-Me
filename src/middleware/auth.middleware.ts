@@ -9,13 +9,13 @@ function protect(req: Request, res: Response, next: NextFunction): void {
     throw new HTTPException("You are not logged in", 403);
   }
 
-  if (req.user.isModified()) {
-    user_repo.findUserById(req.user._id).then((res) => {
-      req.user = res;
-    });
-  } else {
-    req.user = req.session.user;
-  }
+  // if (req.session.user.isModified) {
+  //   user_repo.findUserById(req.user._id).then((res) => {
+  //     req.user = res;
+  //   });
+  // } else {
+  req.user = req.session.user;
+  // }
   next();
 }
 

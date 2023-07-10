@@ -165,6 +165,7 @@ class AuthenticationServices {
         purpose: "reset-password",
         email: userexist.email,
       });
+
       await otp.save();
       userexist.isVerified = false;
       await userexist.save();

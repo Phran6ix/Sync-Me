@@ -5,6 +5,7 @@ import ITaskRepo from "../modules/repository/task.repository";
 import { TTask } from "../database/models";
 import { protect } from "../middleware/auth.middleware";
 import TaskRepo from "../modules/implementation/task.implementation";
+import HTTPException from "../exception/exceptions";
 
 export default class TaskController extends BaseController {
   public router: Router = Router();
@@ -21,15 +22,22 @@ export default class TaskController extends BaseController {
     this.router.post(`${this.path}`, protect, (...x) =>
       this.HTTPAddTaskToGroup(...x)
     );
-    this.router.get(`${this.router}`, protect, (...a) =>
+    this.router.get(`${this.path}`, protect, (...a) =>
       this.HTTPGetTaskOnGroup(...a)
     );
 
-    this.router.patch(`${this.path}/add-task`, protect, (...a) =>
+    this.router.get(`${this.path}/:task`, protect, (...a) =>
+      this.HTTPGetATask(...a)
+    );
+
+    this.router.patch(`${this.path}/add-task/:task`, protect, (...a) =>
       this.HTTPAddTasksToTask(...a)
     );
     this.router.patch(`${this.path}/update-task`, protect, (...a) =>
       this.HTTPUpdateTaskInGroup(...a)
+    );
+    this.router.patch(`${this.path}/mark-as-complete`, protect, (...a) =>
+      this.HTTPMarkTaskAsComplete(...a)
     );
   }
 
@@ -40,7 +48,9 @@ export default class TaskController extends BaseController {
   ): Promise<Response> {
     try {
       const task = await this.task_repo.addTaskToGroup(req.body);
-      return this.sendResponse(res, 201, { message: "Task successfully add" });
+      return this.sendResponse(res, 201, {
+        message: "Task successfully added",
+      });
     } catch (error) {
       next(error);
     }
@@ -52,7 +62,7 @@ export default class TaskController extends BaseController {
     next: NextFunction
   ): Promise<Response> {
     try {
-      const tasks = await this.task_repo.getTasksOnGroup(`` + req.query.group);
+      const tasks = await this.task_repo.getTasksOnGroup(`${req.query.group}`);
       return this.sendResponse(res, 200, tasks);
     } catch (error) {
       next(error);
@@ -78,7 +88,7 @@ export default class TaskController extends BaseController {
     next: NextFunction
   ): Promise<Response> {
     try {
-      await this.task_repo.addTasksToTask(req.params.task, req.body);
+      await this.task_repo.addTasksToTask(req.params.task, req.body.title);
       return this.sendResponse(res, 200, { message: "Task added" });
     } catch (error) {
       next(error);
@@ -104,8 +114,8 @@ export default class TaskController extends BaseController {
     next: NextFunction
   ): Promise<Response> {
     try {
-      await this.task_repo.markTasksAsComplete(`` + req.query.sub_task);
-      return this.sendResponse(res, 204, {});
+      await this.task_repo.markTasksAsComplete(`${req.query.sub_task}`);
+      return this.sendResponse(res, 204, { message: "Successful" });
     } catch (error) {
       next(error);
     }

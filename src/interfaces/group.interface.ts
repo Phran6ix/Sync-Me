@@ -2,7 +2,7 @@ import { Document, Types } from "mongoose";
 import { IUser } from "./user.interface";
 
 export interface IGroup {
-  _id: Types.ObjectId;
+  id: string;
   name: string;
   description: string;
   members: string[];

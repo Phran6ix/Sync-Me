@@ -8,6 +8,7 @@ import { IUser } from "../interfaces/user.interface";
 import HTTPException from "../exception/exceptions";
 import { TUser } from "../modules/implementation/user.implementation";
 import UserRepo from "../modules/implementation/user.implementation";
+import { Group } from "../database/models";
 
 export default class GroupServices {
   private group_repo;
@@ -51,11 +52,12 @@ export default class GroupServices {
         userdata = await this.user_repo.findUserByUsername(user.username);
       }
 
-      if (this.group_repo.userInGroup(group, userdata._id))
+      if (this.group_repo.userInGroup(group, userdata.id))
         throw new HTTPException("User already in group", 400);
 
-      group.members.push(userdata._id);
+      group.members.push(userdata.id);
       await group.save();
+
       return group;
     } catch (error) {
       throw error;
@@ -72,6 +74,7 @@ export default class GroupServices {
       if (!group)
         throw new HTTPException("Group with this ID does not exist", 404);
 
+      console.log(group);
       if (!this.group_repo.userInGroup(group, user))
         throw new HTTPException("You are not authorized for this action", 400);
 
@@ -109,7 +112,7 @@ export default class GroupServices {
     payload: { photo: string }
   ): Promise<void> {
     try {
-      const group: TGroup = await this.group_repo.getAGroupById(id);
+      const group = (await Group.findById(id)) as TGroup;
 
       if (!group)
         throw new HTTPException("Group with this id does not exist", 404);
@@ -118,6 +121,7 @@ export default class GroupServices {
         throw new HTTPException("You are not authorized for this action", 403);
 
       group.photo = payload.photo;
+
       await group.save();
       return;
     } catch (error) {

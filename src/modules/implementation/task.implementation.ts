@@ -17,8 +17,7 @@ export default class TaskRepo implements ITaskRepo<TTask> {
   }
 
   async getTaskWithTaskList(task_id: string): Promise<any> {
-    return await Task.findOne({ tasklists: task_id });
+    return await Task.findOne({ "tasklists._id": task_id });
   }
-  // FIX THE TASKLIST LOGIC, IT'S MESSED UP - CREATE A SEPERATE MODEL FOR THE TASKLIST AND STORE THE ID ON THE TASKLIST FIELD
   // THAT SHOULD DO IT AND ALSO FIGURE OUT A WAY TO CALCULATE THE PROGRESS RATE
 }

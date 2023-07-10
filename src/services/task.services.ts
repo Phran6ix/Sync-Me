@@ -2,8 +2,10 @@ import ITaskRepo from "../modules/repository/task.repository";
 import { TTask } from "../database/models";
 import { taskSchema } from "../validator/task.validator";
 import HTTPException from "../exception/exceptions";
+import GroupRepo from "../modules/implementation/group.implementation";
 
 export default class TaskService {
+  private group_repo: GroupRepo = new GroupRepo();
   private task_repo;
   constructor(task_repo: ITaskRepo<TTask>) {
     this.task_repo = task_repo;
@@ -19,9 +21,15 @@ export default class TaskService {
     }
   }
 
-  async getTasksOnGroup(group_id: TTask["group"]): Promise<TTask[]> {
+  async getTasksOnGroup(group_id: TTask["group"]): Promise<any> {
     try {
-      const tasks = await this.task_repo.getAllTaskInGroup(group_id);
+      if (!group_id) throw new HTTPException("Group ID is required", 400);
+      let tasks = await this.task_repo.getAllTaskInGroup(group_id);
+
+      let popTask: TTask[] = [];
+
+      // TASK: Populate the group field
+
       return tasks;
     } catch (error) {
       throw error;
@@ -72,7 +80,17 @@ export default class TaskService {
   async markTasksAsComplete(task_id: string): Promise<void> {
     try {
       const task = await this.task_repo.getTaskWithTaskList(task_id);
-      console.log(task);
+      if (!task)
+        throw new HTTPException("Task with this sub_task not fund", 404);
+
+      task.tasklists.forEach((sub_task) => {
+        if (`${sub_task._id}` == task_id) {
+          sub_task.completed = true;
+        }
+      });
+
+      await task.save();
+      return;
     } catch (error) {
       throw error;
     }

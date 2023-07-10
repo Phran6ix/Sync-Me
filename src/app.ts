@@ -7,6 +7,7 @@ import controllerInterface from "./interfaces/controller.interface";
 import AuthenticationController from "./controller/authentication.controller";
 import GroupController from "./controller/group.controller";
 import UserController from "./controller/user.controller";
+import TaskController from "./controller/task.controller";
 import { redisStore } from "./config/conect.redis";
 import handleGlobalError from "./handler/errorHandler";
 
@@ -72,15 +73,19 @@ function runEndpoint(controllers: controllerInterface[]) {
   });
 }
 
-// app.use('*', (req: Request, res: Response, next: NextFunction) => {
-//   res.status(404).send('This Route is not Found, Please check the url and try again')
-// })
-
 runEndpoint([
   new AuthenticationController(),
   new GroupController(),
   new UserController(),
+  new TaskController(),
 ]);
+
+app.use("*", (req: Request, res: Response, next: NextFunction) => {
+  res
+    .status(404)
+    .send("This Route is not Found, Please check the url and try again");
+});
+
 app.use(handleGlobalError);
 
 export default app;

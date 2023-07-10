@@ -34,8 +34,8 @@ export default class Email {
         host: this.host,
         port: this.port,
         auth: {
-          user: this.user,
-          pass: this.pass,
+          user: process.env.TEST_SMTP_USER,
+          pass: process.env.TEST_SMTP_PASS,
         },
       }));
     } else if (process.env.NODE_ENV === "production") {

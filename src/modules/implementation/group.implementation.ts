@@ -7,6 +7,7 @@ import { redisClient } from "../../config/conect.redis";
 import cacherepo from "./cache.implmentation";
 
 export type TGroup = IGroup & Document;
+// export interface TGroup extends IGroup {}
 
 export default class GroupRepo implements IGroupRepo<TGroup> {
   private group_model;
@@ -58,13 +59,19 @@ export default class GroupRepo implements IGroupRepo<TGroup> {
     const redisdata = await this.cache.getItemFromCache<TGroup>(`group-${id}`);
     if (redisdata) return redisdata;
 
-    const data = await this.group_model
-      .findById(id)
-      .populate("members", "-__v -isVerified")
-      .populate("createdBy", "-__v -_id -isVerified");
+    const data = await this.group_model.findById(id);
+    // .populate("members", "-__v -isVerified")
+    // .populate("createdBy", "-__v -_id -isVerified");
 
+    if (!data) throw new HTTPException("Group not found", 404);
     await this.cache.addItemToCache<TGroup>(`group-${data._id}`, data);
     return data;
+  }
+
+  async getAGroupByQuery(query: any): Promise<TGroup> {
+    let group: TGroup;
+    group = await Group.findOne(query);
+    return group;
   }
 
   async updateGroup(id: string, payload: object): Promise<TGroup> {

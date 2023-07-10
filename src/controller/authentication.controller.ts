@@ -50,6 +50,7 @@ export default class AuthenticationController extends BaseController {
   ): Promise<Response> {
     try {
       const payload = await signupSchema.validate(req.body);
+
       let { password, ...data } = payload;
 
       password = await hashpassword(password);
@@ -75,7 +76,7 @@ export default class AuthenticationController extends BaseController {
       const response = await this.authService.verifyAccount(otp);
 
       return this.sendResponse(res, 200, {
-        message: "Account has verified",
+        message: "Account has been verified",
         user: response,
       });
     } catch (error) {
