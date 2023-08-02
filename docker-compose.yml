@@ -1,5 +1,5 @@
 services:
-  node-app: 
+  node-app:
     build: .
     env_file:
       - .env
@@ -12,20 +12,18 @@ services:
       - redis
       - mongo
     command: npm start
-  
-  mongo: 
+
+  mongo:
     image: mongo:4.4.6
     ports:
       - 27017:27017
     volumes:
       - mongo-db:/data/db
-    
 
-  redis: 
+  redis:
     image: redis
-    ports: 
+    ports:
       - 6379:6379
-    
-      
-volumes: 
-  mongo-db: 
+
+volumes:
+  mongo-db:

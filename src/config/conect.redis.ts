@@ -2,7 +2,7 @@ import { createClient } from "redis";
 import RedisStore from "connect-redis";
 import { RedisClientType } from "redis";
 
-const redishost: string = process.env.REDIS_HOST || "localhost";
+const redishost: string = process.env.REDIS_HOST || "redis";
 const redisport: number = +process.env.REDIS_PORT || 6379;
 let redisConnection: RedisClientType;
 
@@ -12,7 +12,7 @@ if (process.env.NODE_ENV == "production") {
 
 if (process.env.NODE_ENV == "development") {
   redisConnection = createClient({
-    // socket: { host: redishost, port: redisport },
+    socket: { host: redishost, port: 6379 },
     // legacyMode: true,
   });
 }

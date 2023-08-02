@@ -111,8 +111,6 @@ export default class AuthenticationController extends BaseController {
         password,
       });
 
-      req.session.user = user;
-
       return this.sendResponse(res, 200, {
         message: "User signed inl",
         user,

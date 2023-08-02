@@ -7,6 +7,7 @@ import Email from "../utils/nodemailer/email";
 import { comparepassword } from "../utils/bcrypt/hashpassword";
 import { IUser } from "../interfaces/user.interface";
 
+import JWTFunctions from "../helper/jwt";
 import IOtp from "../interfaces/otp.interface";
 import { Document } from "mongoose";
 import HTTPException from "../exception/exceptions";
@@ -119,7 +120,7 @@ class AuthenticationServices {
     email?: string;
     username?: string;
     password: string;
-  }): Promise<TUser> {
+  }): Promise<{ user: IUser; token: string }> {
     try {
       const { email, username, password } = payload;
 
@@ -139,7 +140,8 @@ class AuthenticationServices {
       if (!user.isVerified)
         throw new HTTPException("User account is not verified", 401);
 
-      return user;
+      const token = await JWTFunctions.signToken(user);
+      return { user, token };
     } catch (error) {
       throw error;
     }
