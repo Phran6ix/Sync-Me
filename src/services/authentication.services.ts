@@ -64,8 +64,8 @@ class AuthenticationServices {
       if (!otpDoc) {
         throw new HTTPException("Account with this OTP does not exist", 404);
       }
-
-      if (+new Date() - +otpDoc.createdAt > 600000) {
+      console.log(otpDoc, new Date());
+      if (new Date().getTime() - otpDoc.createdAt.getTime() > 600000) {
         throw new HTTPException("This token has expired", 400);
       }
 
