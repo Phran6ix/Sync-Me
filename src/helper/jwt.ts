@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import { IUser } from "../interfaces/user.interface";
 
 class JWTFunctions {
-  static async signToken(data: IUser): Promise<string> {
+  static async signToken(data: Partial<IUser>): Promise<string> {
     try {
       const token = await jwt.sign(data, process.env.JWT_SECRET, {
         expiresIn: 10000,

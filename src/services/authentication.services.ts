@@ -140,7 +140,15 @@ class AuthenticationServices {
       if (!user.isVerified)
         throw new HTTPException("User account is not verified", 401);
 
-      const token = await JWTFunctions.signToken(user);
+      let userdata = {
+        _id: user._id,
+        fullname: user.fullname,
+        photo: user.photo,
+        email: user.email,
+        username: user.username,
+      };
+
+      const token = await JWTFunctions.signToken(userdata);
       return { user, token };
     } catch (error) {
       throw error;
