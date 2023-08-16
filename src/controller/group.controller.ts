@@ -56,6 +56,7 @@ export default class GroupController extends BaseController {
     try {
       await this.groupservice.addANewGroup({
         createdBy: req.user._id,
+        members: [req.user._id],
         ...req.body,
       });
 
